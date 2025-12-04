@@ -1,0 +1,10 @@
+flask
+transformers
+torch
+pydub
+librosa 
+soundfile
+Flask
+flask-cors
+transformers
+torch

@@ -1,0 +1,43 @@
+services:
+  mongo:
+    image: mongo
+    container_name: vocalmart-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  spring-backend:
+    build:
+      context: ./productapi
+    container_name: vocalmart-spring-backend
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongo
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/voice_shop
+
+  react-frontend:
+    build:
+      context: ./voice-search-frontend
+    container_name: vocalmart-react-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - spring-backend
+
+  flask-voice-api:
+    build:
+      context: ./voice_search_project
+    container_name: vocalmart-flask-voice-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./voice_search_project/audio_samples:/app/audio_samples
+    depends_on:
+      - spring-backend
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
