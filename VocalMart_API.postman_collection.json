@@ -1,0 +1,146 @@
+{
+  "info": {
+    "name": "VocalMart API",
+    "description": "Spring Boot Product API for VocalMart",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/products",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "products"]
+            },
+            "description": "Retrieve all products from the database. Returns an array of products with base64 encoded images."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Product with Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Samsung Galaxy S24",
+                  "type": "text",
+                  "description": "Product name"
+                },
+                {
+                  "key": "description",
+                  "value": "Latest smartphone with AI features and 200MP camera",
+                  "type": "text",
+                  "description": "Product description"
+                },
+                {
+                  "key": "price",
+                  "value": "999.99",
+                  "type": "text",
+                  "description": "Product price (number)"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "Select an image file (JPG, PNG, etc.)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/products",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "products"]
+            },
+            "description": "Add a new product with an image. Use form-data to send multipart/form-data."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Image by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/products/:id/image",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "products", ":id", "image"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "67477fda8b0d123456789abc",
+                  "description": "Product ID (replace with actual MongoDB ObjectId)"
+                }
+              ]
+            },
+            "description": "Get the product image by product ID. Returns the raw image data."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Flask Voice API",
+      "item": [
+        {
+          "name": "Transcribe Audio",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "audio",
+                  "type": "file",
+                  "src": "",
+                  "description": "Select an audio file (WAV, MP3, etc.)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/transcribe",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["transcribe"]
+            },
+            "description": "Upload audio file to transcribe speech to text using OpenAI Whisper model."
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": [""]
+            },
+            "description": "Check if Flask API is running."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

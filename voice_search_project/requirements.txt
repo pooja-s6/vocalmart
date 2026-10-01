@@ -1,10 +1,9 @@
 flask
-transformers
-torch
-pydub
-librosa 
-soundfile
-Flask
 flask-cors
 transformers
 torch
+numpy
+imageio-ffmpeg
+pydub
+librosa
+soundfile

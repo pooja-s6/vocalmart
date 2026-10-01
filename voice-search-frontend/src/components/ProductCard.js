@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onAddToCart, onRemoveFromCart }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
@@ -10,8 +11,17 @@ const ProductCard = ({ product }) => {
   const handleImageError = () => setImageError(true);
 
   const handleAddToCart = () => {
-    setIsInCart(!isInCart);
-    console.log(`${isInCart ? 'Removed from' : 'Added to'} cart:`, product.name);
+    const willBeInCart = !isInCart;
+    setIsInCart(willBeInCart);
+    try {
+      if (willBeInCart) {
+        onAddToCart?.(product);
+      } else {
+        onRemoveFromCart?.(product.id);
+      }
+    } catch (e) {
+      // ignore handler errors
+    }
   };
 
   const handleWishlist = () => {

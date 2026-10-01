@@ -1,22 +1,18 @@
 package com.example.productapi.controller;
 
-import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.bson.types.Binary;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.example.productapi.model.Product;
 import com.example.productapi.repository.ProductRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
     private final ProductRepository productRepository;
@@ -25,97 +21,29 @@ public class ProductController {
         this.productRepository = productRepository;
     }
 
-    @PostMapping
-    public Product addProduct(
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("price") double price,
-            @RequestParam("image") MultipartFile file
-    ) throws IOException {
-
-        Product product = new Product();
-        product.setName(name);
-        product.setDescription(description);
-        product.setPrice(price);
-
-        // Convert uploaded file to Binary for MongoDB
-        product.setImage(new Binary(file.getBytes()));
-        product.setImageType(file.getContentType());
-
-        Product savedProduct = productRepository.save(product);
-        System.out.println("Product saved: " + savedProduct.getName() + " with image type: " + savedProduct.getImageType());
-
-        return savedProduct;
-    }
-
-    @GetMapping("/{id}/image")
-    public ResponseEntity<byte[]> getProductImage(@PathVariable String id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        if (product.getImage() == null || product.getImageType() == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, product.getImageType())
-                .body(product.getImage().getData());
-    }
-
     @GetMapping
-    public List<ProductDTO> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        System.out.println("Fetching " + products.size() + " products from database");
-
-        return products.stream().map(this::convertToDTO).collect(Collectors.toList());
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return ResponseEntity.ok(productRepository.findAll());
     }
 
-    private ProductDTO convertToDTO(Product product) {
-        ProductDTO dto = new ProductDTO();
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
-
-        if (product.getImage() != null) {
-            byte[] imageBytes = product.getImage().getData();
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-            dto.setImageBase64(base64Image);
-        } else {
-            System.out.println("No image found for product: " + product.getName());
-            dto.setImageBase64(null);
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam(defaultValue = "") String query) {
+        if (query.isBlank()) {
+            return ResponseEntity.ok(productRepository.findAll());
         }
 
-        dto.setImageType(product.getImageType() != null ? product.getImageType() : null);
-
-        return dto;
+        return ResponseEntity.ok(productRepository.findByNameContainingIgnoreCase(query.trim()));
     }
 
-    // DTO for frontend response
-    public static class ProductDTO {
-        private String id;
-        private String name;
-        private String description;
-        private double price;
-        private String imageBase64;
-        private String imageType;
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(productRepository.findByCategoryIgnoreCase(category));
+    }
 
-        public String getId() { return id; }
-        public void setId(String id) { this.id = id; }
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-
-        public String getDescription() { return description; }
-        public void setDescription(String description) { this.description = description; }
-
-        public double getPrice() { return price; }
-        public void setPrice(double price) { this.price = price; }
-
-        public String getImageBase64() { return imageBase64; }
-        public void setImageBase64(String imageBase64) { this.imageBase64 = imageBase64; }
-
-        public String getImageType() { return imageType; }
-        public void setImageType(String imageType) { this.imageType = imageType; }
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable String id) {
+        return productRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
